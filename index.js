@@ -1,8 +1,9 @@
 const express = require('express');
+
 const app = express();
 const User = require('./Models/user');
 
-app.set('view engine ', 'ejs');
+app.set('view engine', 'ejs');
 app.set('views', 'views');
 app.get('/register', (req, res) => {
   res.render('register');
