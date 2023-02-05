@@ -38,6 +38,21 @@ app.post('/register', async (req, res) => {
 app.get('/secret', (req, res) => {
   res.send('THIS IS A SECRET! YOU CAN NOT SEE ME UNLESS YOU ARE LOGGED IN ');
 });
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
+
+  const validpass = await bcrypt.compare(password, user.password);
+  if (validpass) {
+    res.send('Welcome ');
+  } else {
+    res.send('try again');
+  }
+});
 
 app.listen(process.env.PORT, () => {
   console.log('SERVING YOUR APP!');
