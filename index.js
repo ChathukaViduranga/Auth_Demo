@@ -3,6 +3,7 @@ const { default: mongoose, Error } = require('mongoose');
 const app = express();
 const User = require('./Models/user');
 require('dotenv').config();
+const session = require('express-session');
 
 const bcrypt = require('bcrypt');
 
@@ -15,10 +16,12 @@ mongoose
 app.get('/', (req, res) => {
   res.send('This is the Home page');
 });
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'notagoodsecret' }));
 app.get('/register', (req, res) => {
   res.render('register');
 });
@@ -32,10 +35,14 @@ app.post('/register', async (req, res) => {
     password: hash,
   });
   await user.save();
+  req.session.user_id = user._id;
   res.redirect('/');
 });
 
 app.get('/secret', (req, res) => {
+  if (!req.session.user_id) {
+    res.redirect('/login');
+  }
   res.send('THIS IS A SECRET! YOU CAN NOT SEE ME UNLESS YOU ARE LOGGED IN ');
 });
 app.get('/login', (req, res) => {
@@ -48,6 +55,7 @@ app.post('/login', async (req, res) => {
 
   const validpass = await bcrypt.compare(password, user.password);
   if (validpass) {
+    req.session.user_id = user._id;
     res.send('Welcome ');
   } else {
     res.send('try again');
