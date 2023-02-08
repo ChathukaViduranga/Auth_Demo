@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -10,4 +11,9 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.statics.findAndValidate = async function (username, password) {
+  const findUser = await this.findOne({ username });
+  const isValid = await bcrypt.compare(password, findUser.password);
+  return isValid ? findUser : false;
+};
 module.exports = mongoose.model('User', userSchema);
